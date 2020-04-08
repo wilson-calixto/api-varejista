@@ -7,8 +7,13 @@ const MongoClient = require('mongodb').MongoClient;
 
 var indexRouter = require('./src/routes/index');
 var usersRouter = require('./src/routes/users');
-var productsRouter = require('./src/routes/products-router');
-const {ProductsModel} = require('./src/models/products-model');
+var ProductRouter = require('./src/routes/product-router');
+var RatingRouter = require('./src/routes/rating-router');
+
+const {ProductModel} = require('./src/models/product-model');
+const {CategoryModel} = require('./src/models/category-model');
+const {RatingModel} = require('./src/models/rating-model');
+
 
 
 var app = express();
@@ -32,14 +37,14 @@ app.options('*', cors());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/products', productsRouter);
+app.use('/product', ProductRouter);
+app.use('/rating', RatingRouter);
 
 // 19251098i03qplsqa
 
-const uri = "mongodb+srv://backendAplication:19251098i03qplsqa@cluster0-p2j8t.mongodb.net/test?retryWrites=true&w=majority";
+const url = "mongodb+srv://backendAplication:19251098i03qplsqa@cluster0-p2j8t.mongodb.net/test?retryWrites=true&w=majority";
 
-
-const url = "mongodb+srv://andre:andre@clusterandre-di55c.gcp.mongodb.net/test?retryWrites=true&w=majority";
+// const url = "mongodb+srv://andre:andre@clusterandre-di55c.gcp.mongodb.net/test?retryWrites=true&w=majority";
 
 
 
@@ -53,7 +58,9 @@ const mongoClient = mongodb.MongoClient;
 
 
 mongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }).then(async function (database) {
-    await ProductsModel.injectDb(database);
+    await ProductModel.injectDb(database);
+    await CategoryModel.injectDb(database);
+    await RatingModel.injectDb(database);
     console.log("oudri cand larray")
   
   }).catch((err) => {
