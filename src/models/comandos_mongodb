@@ -1,0 +1,40 @@
+db.runCommand( {
+   collMod: "men_s_fashion_details",
+   validator: { $jsonSchema: {
+      bsonType: "object",
+      required: [ "description", "fk_product" ],
+      properties: {
+         description: {
+            bsonType: "string",
+            description: "must be a string and is required"
+         },
+         fk_product: {
+            bsonType: "objectid",
+            description: "must be a ObjectId and is required"
+         },         
+         last_ratings: {
+            bsonType: "array",
+            description: "must be a Array and is required"
+         }
+      }
+   } },
+   validationLevel: "strict"
+} )
+db.shardCollection( "retailer.women_s_fashion" , { price } )
+
+sh.shardCollection( "retailer.women_s_fashion" , { price_1 } )
+
+19251098i03qplsqa
+
+
+sh.shardCollection("retailer.women_s_fashion",
+ {
+     "price":1
+ },
+ {
+    numInitialChunks: 5,
+  })
+
+
+
+

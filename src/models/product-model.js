@@ -23,6 +23,13 @@ class ProductModel {
             this.collections = {"men_s_fashion": await conn.db("retailer").collection("men_s_fashion")}
             this.collections["men_s_fashion_details"]= await conn.db("retailer").collection("men_s_fashion_details")
 
+            this.collections["women_s_fashion"]= await conn.db("retailer").collection("women_s_fashion")
+            this.collections["women_s_fashion_details"]= await conn.db("retailer").collection("women_s_fashion_details")
+
+            this.collections["ratings"]= await conn.db("retailer").collection("ratings")
+
+
+
         }catch(e){
             console.error(`Unable to establish a collection handle in ProductModel: ${e}`);
             return { error: e }
@@ -32,10 +39,55 @@ class ProductModel {
     
     static async updateRating(rating){
         try{
-            return await this.collections[rating.category].updateOne(
-                { "_id" : rating.fk_product_details },
-                [ { $set: { last_ratings: { $concatArrays: [ "$last_ratings", [ rating]  ] } } } ]
+            let resp = await this.collections[rating.category+'_details'].updateOne(
+                { "_id" : new mongodb.ObjectID(rating.fk_product_details) },
+                {$push: {
+                    last_ratings: {
+                      $each: [ rating ],
+                      $slice: -5
+                    }
+                  }
+                }
              );
+
+
+             let rating_by_products = await this.collections['ratings'].aggregate([
+                {
+                    $group: {
+                        _id: "$fk_product",
+                        avg_rate: { "$avg": "$rate" } 
+                      } 
+                  },
+                ]).toArray()
+                
+                let last_rate;
+                let category;
+
+                for (let i=0;i<rating_by_products.length;i++){
+
+
+
+
+                    last_rate = await  this.collections['ratings'].find(
+                        {fk_product : rating_by_products[i]._id},
+                        {limit:1}
+                    ).toArray()
+
+                    category = last_rate[0].category
+
+
+                    await this.collections[category].updateOne(
+                        { "_id" : new mongodb.ObjectID(rating_by_products[i]._id)},
+                        {'$set': {'rating': rating_by_products[i].avg_rate}
+                        }
+                     );
+                    
+                }
+    
+        
+                
+
+             return resp
         }catch(e){
             console.error(`Error in insert operation: ${e}`);
             return { error: e }
@@ -54,8 +106,9 @@ class ProductModel {
     static async insertProductInDB(Product){
 
         try{
-            const resp = await this.insertProductBasicInformation(Product);
-            await this.insertProductDetailsInformation(Product,resp['insertedId']);
+            let resp = await this.insertProductBasicInformation(Product);
+            resp = await this.insertProductDetailsInformation(Product,resp['insertedId']);
+            return {details_id :resp['insertedId']}
 
         }catch(e){
             console.error(`Error in insert operation: ${e}`);
@@ -69,7 +122,6 @@ class ProductModel {
 
     static async insertProductDetailsInformation(Product,id){
         Product.details['fk_product']=new mongodb.ObjectID(id)
-        console.log('id gerado',id)
         return this.insertData(Product.information.category+"_details",Product.details)
     }
 

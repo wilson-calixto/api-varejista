@@ -30,7 +30,10 @@ class RatingModel {
 
         try{
             //TODO remover o campo category E OUTROS CAMPOS NAO USADO NA TALEN DE DETALHES
-            rating['fk_product_details'] = await new mongodb.ObjectID(rating['fk_product_details'])
+            rating['fk_product'] = await new mongodb.ObjectID(rating['fk_product'])
+            rating['date'] = new Date()
+
+            
 
             return await this.collections['ratings'].insertOne(rating)
 
