@@ -42,9 +42,9 @@ app.use('/rating', RatingRouter);
 
 // 19251098i03qplsqa
 
-const url = "mongodb+srv://backendAplication:19251098i03qplsqa@cluster0-p2j8t.mongodb.net/test?retryWrites=true&w=majority";
+// const url = "mongodb+srv://backendAplication:19251098i03qplsqa@cluster0-p2j8t.mongodb.net/test?retryWrites=true&w=majority";
 
-// const url = "mongodb+srv://andre:andre@clusterandre-di55c.gcp.mongodb.net/test?retryWrites=true&w=majority";
+const url = "mongodb+srv://andre:andre@clusterandre-di55c.gcp.mongodb.net/retailer?retryWrites=true&w=majority";
 
 
 
@@ -65,6 +65,7 @@ mongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }).th
   
   }).catch((err) => {
     console.log("!!!!!!!!!!!!!!!!!!!!")
+    throw err;
 
     console.log(err);
   });

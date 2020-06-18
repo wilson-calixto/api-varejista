@@ -31,6 +31,8 @@ class RatingModel {
         try{
             //TODO remover o campo category E OUTROS CAMPOS NAO USADO NA TALEN DE DETALHES
             rating['fk_product'] = await new mongodb.ObjectID(rating['fk_product'])
+            rating['fk_product_details'] = await new mongodb.ObjectID(rating['fk_product_details'])
+            
             rating['date'] = new Date()
 
             
@@ -44,9 +46,11 @@ class RatingModel {
     }
 
 
-    static async getRatingsFromDB(){
+    static async getRatingFromDB(){
         try{
-            return await this.collections['ratings'].find({}).toArray();
+            const a = await this.collections['ratings'].find({}).toArray();
+            console.log('await this.collections',a)
+            return a
         }catch(e){
             console.error(`Error in insert operation: ${e}`);
             return { error: e }

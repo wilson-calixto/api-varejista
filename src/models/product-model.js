@@ -94,8 +94,31 @@ class ProductModel {
         }
     }
 
+
+    
+    static async getProductsByIdFromDB(category,id){
+        let product = {information:{},details:{},last_ratings:[{}]}
+        try{
+
+            let temp=await this.collections[category].find({_id: new mongodb.ObjectID(id)}).toArray();
+            product.information=temp[0]
+
+            let temp2=await this.collections[category+'_details'].find({fk_product: new mongodb.ObjectID(id)}).toArray();
+            product.details=temp2[0]
+
+
+
+            return product
+        }catch(e){
+            console.error(`Error in insert operation: ${e}`);
+            return { error: e }
+        }
+    }
+
     static async getProductsFromDB(category,description){
         try{
+            console.error(`category: ${category},${ description } `);
+
             return await this.collections[category].find( { $text: { $search: description } } ).toArray();
         }catch(e){
             console.error(`Error in insert operation: ${e}`);
